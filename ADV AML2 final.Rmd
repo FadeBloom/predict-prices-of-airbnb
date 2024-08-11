@@ -1,0 +1,688 @@
+---
+title: "MGT7179 Second Assignment Report"
+subtitle: "Faderemi Atoyebi - 40379140"
+author1: Faderemi Atoyebi; 
+author2: 40379140
+output: 
+  bookdown::pdf_document2:
+  template: MGT7179ReportTemV01RMarkDown-updated.tex
+  keep_tex: true
+  xaringan::ninjutsu:
+    css: [default, chocolate, metropolis-fonts]
+
+date: "2023-05-06"
+  
+---
+##1.1 Introduction (pandas)  {.allowframebreaks}
+
+Airbnb was established in 2008 and has gained popularity of the years. The hospitality industry has become widely known is now very popular. There has been lots of research on how to predict prices of Airbnb. In San Francisco, neural networks which is a machine learning was used in predicting prices (Gao et al.,2017). Machine algorithms is becoming more popular in price prediction not just for Airbnb but also in instances where large data is required for price prediction.
+
+To aid the accurate prediction of prices some features are considered, and they are location, room type, number of bedrooms, facilities in the Airbnb and lots more. Despite the success rate of machine learning algorithms. A few limitations also exist one of such was stated by KOK et al., 2021 which are external factors occurring in the location of the Airbnb and the immediate economy of such localities. Another limitation is the challenge encountered in interpreting the results from the algorithms which might not be easily understood by the professionals not familiar with machine learning (Neville et al.,2020). The size of data and incompleteness of data is another bottle neck in use of machine learning to predict data (Grewal et al.,2020)
+
+##2.1 Data Understanding (pandas)  {.allowframebreaks}
+The data contains information from three cities in Europe from an evaluation of studies of Airbnb in Europe. The data set has 3503 observations and 49 variables. The data contains details about the host , reviews of the various airbnb, the location, amenities available, price and a lot more. 
+The data set contains data from Amsterdam, Antwerp and Belgium in Europe. The insights gained from the analysis will aid in knowing what variables to consider when setting price for the airbnb and what customers look out for when picking the Airbnb in relation t price.
+
+##2.2 Preparation of Data (pandas)  {.allowframebreaks}
+The absence of errors in data sets, especially large ones, are almost unimaginable. Data cleaning, reduction, modification are essential exercises to ensure optimal results in data analysis (Garcia et al.,2015). Data quality issues such as missing values, outliers, zeros, are a few issues that were identified in the data. 
+
+The data cotains missing values, NAs ,N/A and outliers. To analyse the data all irregularities have to be addressed. This is to ensure the report is clear and free of any factors or details that may affect the analysis.In this research work, the data cleaning is done along with the visualisation and analysis of data. However, it is possible to also clean the data first before visualising or analysing the data. 
+
+A description of the data was done to understand the observations in the data set and functions such as head, dim, describe, tail were used. This gives a brief description of the data with details of the observations, variables contained in the various rows and columns. The data was subset into two subset A and subset B. Subset A contained data from Amsterdam while Subset B contained data from the three cities. Subset A was selected based on the number of observations in the data set, it contained 3102 observations which accounted for 88.55% of the data. Considering it would be unrealistic analyzing 11.45% of the remaining data which is 401 observations. 
+
+##2.3 Modelling and Evaluation (pandas)  {.allowframebreaks}
+After the description, a frequency table was plotted to show the observations in the three cities. Amsterdam had a total of 3102, while Antwerp contained 334 and Belgium had 67observations. A Barplot was used to further visualize the cities using the GGplot function. The data set was further split into subset and the first subset contained details with Amsterdam the city with the largest observations.
+
+The data cleaning was done alongside the data visualization after subseting the data. Neighborhood column contained characters and were converted to factors for the purpose of the analysis and a new column called neighbour was created. The column with price contained values with the dollar sign, this was substring and put in a new column called price cleaned 11, this was further converted and made numeric and put in a new column called price_cleansed12. This was necessary for the purpose of the data visualization to investigate the association between price and review scores and other variables, to give an idea of the pattern and if they strongly influence price.
+
+```{r 1000, echo=FALSE}
+local({r <- getOption("repos")
+       r["CRAN"] <- "http://cran.r-project.org"
+       options(repos=r)})
+```
+
+```{r 10, echo=FALSE, message=FALSE}
+library(readr) 
+install.packages("psych") 
+library(psych) 
+install.packages("dplyr")
+library(dplyr) 
+install.packages("ISLR2")
+library(ISLR2)
+install.packages("pacman") 
+pacman::p_load(tidyverse,caret,dplyr,ggplot2,psych,rms)
+install.packages('epiDisplay')
+library(epiDisplay)
+install.packages("rpart.plot")
+install.packages("tinytex")
+library(tinytex)
+tinytex::install_tinytex(force = TRUE)
+```
+
+
+```{r 11, echo=FALSE}
+airbnb<-read.csv("dataset-cities- Amsterdam- - Antwerp_22 - Berlin_15_ - student 9 .csv")
+airbnb1<-as.data.frame(airbnb)
+```
+
+## exploration of data  {.allowframebreaks}
+
+```{r 12, echo=FALSE}
+summary(airbnb1)
+dim(airbnb1)
+describe(airbnb1)
+head(airbnb1)
+tail(airbnb1)
+```
+
+## Data plots
+
+
+
+
+```{r 13, echo = TRUE} 
+airbnb1$crrr<-as.factor(airbnb1$city)
+Freq_table<-tab1(airbnb1$crrr, sort.group = "decreasing", cum.percent = TRUE)
+Freq_df<-as.data.frame(Freq_table$output.table)
+#View(Freq_df)
+summary(airbnb1$crrr)
+```
+
+```{r 14, echo=TRUE}
+library(ggplot2)
+GBarplot<-ggplot(airbnb1, aes(x=reorder(crrr, crrr, function(x)-length(x)))) +
+geom_bar(fill='purple') +  labs(x='City')
+GBarplot + theme(text = element_text(size = 6)) 
+```
+## Frequnecy and dataframes (pandas)  {.allowframebreaks}
+
+- Subset A:
+```{r 15, echo = TRUE}
+Top_freq_spec_a<-c('Amsterdam-7Sep2022-listings (1).csv')
+airbnb_data <- airbnb1[airbnb1$crrr %in% Top_freq_spec_a,]
+```
+
+## Frequency and dataframes (pandas)  {.allowframebreaks}
+
+
+```{r 16, echo = TRUE} 
+airbnb_data$neighbour<-as.factor(airbnb_data$host_neighbourhood)
+#airbnb_data_summary <- sapply(airbnb_data, summary)
+#airbnb_data_summary
+#summary(airbnb_data$neighbour)
+```
+
+```{r 17, echo = FALSE} 
+airbnb_data$price_cleaned <- substring(airbnb_data$price, 2)
+airbnb_data$price_cleaned11<-sub("\\S+\\s+", "", airbnb_data$price)
+library(tidyr)
+airbnb_data$price_cleaned12<-extract_numeric(airbnb_data$price)
+summary(as.numeric(airbnb_data$price_cleaned12))
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of price and review_scores_rating
+From the plot below its shows that price is has a large association with review scores. A large number of customers rated Airbnb with prices between $0 and $1000 much higher than Airbnb with prices above $1000.
+
+```{r 18, echo = TRUE}
+plot(airbnb_data$price_cleaned12,airbnb_data$review_scores_rating)
+```
+## Association of predictors and price  {.allowframebreaks}
+
+
+- Association of price and review_scores_rating...
+With the price further scaled down to $1000 to get the exact price preference of customers, it showed that customers had a higher preference for prices between $50 and $400
+
+```{r 19, echo = TRUE}
+price_outliers<- airbnb_data$price_cleaned12>1000
+plot(airbnb_data$review_scores_rating[!price_outliers],airbnb_data$price_cleaned12[!price_outliers])
+```
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of price and availability in past 30 days..
+Association of price and availability of Airbnb in the past 30 days. The Airbnb that were available within the period of 0 -15days with price ranging between $0-$500 had more patronage considering the large cluster of bubbles in the chart
+
+```{r 20, echo = TRUE}
+plot(airbnb_data$availability_30[!price_outliers],airbnb_data$price_cleaned12[!price_outliers])
+```
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of price and minimum_nights...
+The chart shows association between the minimum nights available for rentals of the Airbnb and cost per night. The number of days available were scaled down to 10days to get a clearer picture of customer preferences. The Airbnb available for a minimum of one to seven nights had more patronage, this could also be linked to the cost which is between $100 and $1000.
+
+
+```{r 21, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+minimum_nights_outliers<- airbnb_data$minimum_nights>10
+plot(airbnb_data$minimum_nights[!minimum_nights_outliers],airbnb_data$price_cleaned12[!minimum_nights_outliers])
+```
+
+## Association of predictors and price  {.allowframebreaks}
+
+
+- Association of number_of_reviews and price...
+The chart shows association between the number of reviews available for rentals of the Airbnb and cost per night.  The Airbnb with prices less than $1000 had reviews up to 500 reviews. This is because of the patronage of the airbnb with prices of this price.
+
+```{r 22, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+plot(airbnb_data$number_of_reviews[!minimum_nights_outliers],airbnb_data$price_cleaned12[!minimum_nights_outliers])
+```
+
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of number_of_reviews and minimum_nights...
+The minimum stay of 1-7days had lots of review ranging between 1-500 reviews and the higher the minimum number of nights the less the reviews received. This could be an indication that there are more lodgers staying more between 1-7days than those staying eight days and higher
+
+```{r 23, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+plot(airbnb_data$number_of_reviews[!minimum_nights_outliers],airbnb_data$minimum_nights[!minimum_nights_outliers])
+```
+
+## Association of availability and price  {.allowframebreaks}
+
+The plot below shows that there are more air bnb available which have prices of $200 and below 
+
+```{r 124, echo=TRUE}
+ggplot(data=airbnb_data)+
+geom_bar(mapping = aes(x=as.numeric(has_availability), y=price_cleaned12), stat="summary")+ labs(title = "Price by Availability", x="Availability", y="price($)")
+```
+
+## Association of host acceptance rate and price  {.allowframebreaks}
+The definitely is a relationship between the host acceptance rate and price. The host with airbnb of prices below $2000 have a high acceptance rate. The more the acceptance by the host the more they get patronage and this is also a function of the price. 
+
+```{r 126, echo=TRUE}
+qplot(x= host_acceptance_rate, y= price_cleaned12, data = airbnb_data)+ geom_smooth(method = "lm", se=FALSE)+ ggtitle("Relationship between Price and Acceptance Rate")
+```
+
+
+```{r 24, echo=FALSE}
+airbnb_data[airbnb_data == "N/A"] <- NA
+```
+
+
+```{r 25, echo=FALSE}
+airbnb_data <- airbnb_data[complete.cases(airbnb_data[, c("bedrooms", "beds", "review_scores_accuracy", "review_scores_checkin", "review_scores_cleanliness", "review_scores_communication", "review_scores_location", "review_scores_value", "review_scores_rating", "reviews_per_month", "host_location", "bathrooms_text", "first_review", "last_review", "license", "host_response_time", "host_response_rate", "host_acceptance_rate", "neighbourhood", "host_neighbourhood")]), ]
+```
+
+```{r 26, echo=FALSE}
+summary(airbnb_data)
+```
+
+```{r 27, echo=FALSE}
+airbnb_data$host_since <- as.factor(airbnb_data$host_since)  
+airbnb_data$host_location <- as.factor(airbnb_data$host_location)
+airbnb_data$host_response_time <- as.factor(airbnb_data$host_response_time)
+airbnb_data$host_response_rate <- as.factor(airbnb_data$host_response_rate)
+airbnb_data$host_acceptance_rate <- as.factor(airbnb_data$host_acceptance_rate)
+airbnb_data$host_neighbourhood <- as.factor(airbnb_data$host_neighbourhood)
+airbnb_data$neighbourhood <- as.factor(airbnb_data$neighbourhood)
+airbnb_data$neighbourhood_group_cleansed <- as.factor(airbnb_data$neighbourhood_group_cleansed)
+airbnb_data$property_type <- as.factor(airbnb_data$property_type)
+airbnb_data$room_type <- as.factor(airbnb_data$room_type)
+airbnb_data$bathrooms_text <- as.factor(airbnb_data$bathrooms_text)
+airbnb_data$amenities <- as.factor(airbnb_data$amenities)
+airbnb_data$price <- as.factor(airbnb_data$price)
+airbnb_data$first_review <- as.factor(airbnb_data$first_review)
+airbnb_data$last_review <- as.factor(airbnb_data$last_review)
+airbnb_data$license <- as.factor(airbnb_data$license)
+```
+
+Removing outliers from price
+```{r 214, echo=FALSE}
+airbnb_data <- airbnb_data %>% 
+  filter(price_cleaned12 <3000)
+```
+
+```{r 215, echo=FALSE}
+airbnb_data <- airbnb_data %>%
+  filter(minimum_nights <1001)
+```
+
+```{r 216, echo=FALSE}
+airbnb_data <- airbnb_data %>%
+  filter(maximum_nights <1150)
+```
+
+```{r 29, echo=FALSE}
+airbnb_data <- airbnb_data %>% 
+  mutate_if(~ !is.numeric(.), as.numeric)
+```
+
+
+```{r 31, echo=FALSE}
+airbnb_data <- subset(airbnb_data, select = -bathrooms)
+airbnb_data <- subset(airbnb_data, select = -calendar_updated)
+airbnb_data <- subset(airbnb_data, select = -neighbourhood_group_cleansed)
+airbnb_data <- subset(airbnb_data, select = -city)
+airbnb_data <- subset(airbnb_data, select = -price_cleaned11)
+airbnb_data <- subset(airbnb_data, select = -price_cleaned)
+airbnb_data <- subset(airbnb_data, select = -price)
+airbnb_data <- subset(airbnb_data, select = -id)
+airbnb_data <- subset(airbnb_data, select = -host_id)
+airbnb_data <- subset(airbnb_data, select = -X)
+```
+
+```{r 32, echo=FALSE}
+summary(airbnb_data)
+```
+
+## Lasso regression on subset A  {.allowframebreaks}
+
+Dataset A – Amsterdam observations
+
+Lasso was trained on the airbnb data set for subset A. The dependent variable price is assigned to the dataset and independent variables are created by excluding the intercept and converting them to dummy variables for the purpose of running the models. The seed is set with a unique ID of 40379140 and the data set split into half. The coefficient plots the lasso regression against the lambda values. The glmnet function fits the lasso regression on the on the training data and the cv.glmnet uses cross validation to select the optimal value while minimizing the mean squared error. The lasso was also used to select the variables to be tested using on the other variables. A total of 25 variables were selected out of the 44 variables.
+
+A total of three models were run on subset A to determine the performance of the data set and determine the best price using the price_cleansed12 as the target variable. The three models performed on the data set were the linear regression model, decision tree model and the support vector model.
+```{r 33, echo=TRUE}
+install.packages("glmnet")
+library(glmnet)
+x <- model.matrix(price_cleaned12~., airbnb_data)[, -1]
+y <- airbnb_data$price 
+
+set.seed(40374190)
+
+train <- sample(1:nrow(x), nrow(x) / 2) 
+test <- (-train)
+y.test <- y[test]
+
+lasso.mod <- glmnet(x[train,], y[train], alpha = 1)
+
+plot(lasso.mod)
+```
+
+```{r 34, echo=TRUE}
+set.seed(40379140)
+
+cv.out <- cv.glmnet(x[train, ], y[train], alpha = 1)  
+plot(cv.out)
+
+bestlam <- cv.out$lambda.min
+
+lasso.pred <- predict(lasso.mod, s = bestlam,
+newx = x[test, ])
+
+mean((lasso.pred - y.test)^2)
+```
+
+```{r 35, echo=FALSE}
+out <- glmnet(x, y, alpha = 1)
+
+lasso.coef <- predict(out, type = "coefficients", s = bestlam)[1:44, ]
+
+lasso.coef
+
+lasso.coef[lasso.coef!= 0]
+```
+
+Split Dataset A into train and test 
+
+```{r 36, echo=FALSE}
+set.seed(40379140) # set seed for reproducibility
+train_index <- createDataPartition(y = airbnb_data$price_cleaned, p = 0.8, list = FALSE)
+train_data <- airbnb_data[train_index, ]
+test_data <- airbnb_data[-train_index, ]
+```
+
+## Linear Regression model  {.allowframebreaks}
+
+The linear regression model predicts the target variable price_cleansed12 on the 25 variables selected by the lasso model. The estimated mean returned as intercept of the price_cleansed12 when the predictors are zero. From the linear regression, it shows that the following predictors are statistically significant; longitude, Bathroom_text, availability_60, instant_bookable, host_total_listings_count, room_type, Bedrooms, availability_365, review_scores_cleanliness, review_scores_location, host_listings_count, beds, accommodates, minimum_nights, review_scores_value, neighbour. Making a total of 16 predictors.
+
+The trained data in the linear regression is used for predictions on the new data. The 25 bootstrapped samples were returned by the resampling results to show the RMSE, R-squared and MAE which was used for evaluation of the model. The RMSE value of 101.1529 gives an average of the predicted price listings of the Airbnb are off by $101.15, the coefficient of determination which is the R-squared measures how well the model is fitted to the given Airbnb data set. It has a value of 0.48 which means that 48% of the variability of the Airbnb price listing is explained in the model. Another measure used is the Mean absolute error (MAE) which measures how well the actual values and model predictions are matched. The MAE value was 64.6016 which implies that the model had an average error of $64.60 in price listing prediction.
+
+
+```{r 37, echo=TRUE, warning=FALSE}
+model_lm <- train(price_cleaned12 ~ host_acceptance_rate + longitude + bathrooms_text + availability_60 + first_review + review_scores_rating + instant_bookable + host_location + host_total_listings_count + room_type + bedrooms  + availability_365 + review_scores_cleanliness + review_scores_location + reviews_per_month + host_listings_count + last_review + latitude + beds + accommodates + minimum_nights + number_of_reviews + review_scores_checkin + review_scores_value + neighbour,
+                   data = train_data, method = 'glm')
+
+summary(model_lm)
+
+model_lm
+
+coef <- summary(model_lm)$coef[, 1]
+
+coef
+# Make predictions on the testing data
+predictions <- predict(model_lm, newdata = test_data)
+```
+
+## Decision Tree model  {.allowframebreaks}
+
+The Decision tree model predicts the Airbnb price based on the various variables from the Airbnb listings. This was determined from variables such as bathrooms, availability, review scores, host acceptance rate, neighbourhood and a few others. The Rpart and Rpart plot was used to build the decision tree model. A total of eight variables consisted of the features that constructed the tree amongst the 25 variables used and these variables are, review scores location, room type, host listings count, last review, accommodates, bathroom text, bedrooms, availability 60.
+
+The model had an error of $18725 on the average based on prediction from the Airbnb listings, this is as a result of the root node error of 18725, and the final model had a depth of 10 nodes from the model the Root mean square of the decision tree returned as 141.6707 meaning the price listings of the Airbnb predicted an average error rate of $141.67.  The mean absolute error had a value of 75.13064 meaning the model had an average error of $75.13 at the point of predicting the price of the Airbnb listings. The R-squared on the other hand had a value of 0.1845845 which is relatively low. This means only 18.46% of the variance was explained using the decision tree model and this is not a good fit for the data considering the result of R-squared generated. Based on the results generated by the decision tree model it can be deduced that the model did not perform very well. The RMSE and MAE were high and it had a low R-squared value which did not give a wholistic view of the variance in the data, further improvement might be required to improve the model.
+
+
+```{r 38, echo=FALSE, warning=FALSE}
+install.packages("rpart")
+install.packages("rpart.plot")
+library(rpart)
+library(rpart.plot)
+library(caret)
+```
+
+```{r 308, echo=TRUE, warning=FALSE}
+# Fit the decision tree model using rpart
+model_dt <- rpart(price_cleaned12 ~ host_acceptance_rate + longitude + bathrooms_text + availability_60 + first_review + review_scores_rating + instant_bookable + host_location + host_total_listings_count + room_type + bedrooms  + availability_365 + review_scores_cleanliness + review_scores_location + reviews_per_month + host_listings_count + last_review + latitude + beds + accommodates + minimum_nights + number_of_reviews + review_scores_checkin + review_scores_value + neighbour,
+                  data = train_data, method = "anova")
+
+# Print the decision tree model
+printcp(model_dt)
+
+# Plot the decision tree
+rpart.plot(model_dt)
+
+# Make predictions on the testing data
+predictions_dt <- predict(model_dt, newdata = test_data)
+
+
+# Calculate RMSE, R-squared, and MAE for the decision tree model
+RMSE <- RMSE(predictions_dt, test_data$price_cleaned)
+R_squared <- cor(predictions_dt, test_data$price_cleaned) ^ 2
+MAE <- MAE(predictions_dt, test_data$price_cleaned)
+
+# Print the results
+cat("RMSE:", RMSE, "\n")
+cat("R-squared:", R_squared, "\n")
+cat("MAE:", MAE, "\n")
+```
+
+## Support Vector model  {.allowframebreaks}
+
+The support vector model is slightly different from the other models used and this is because it uses a cost parameter function of one on a linear kernel function. Although the purpose is to also predict the price listings of the Airbnb dataset. Root mean squared, R-squared and Mean absolute error were calculated. The RMSE was 122.87 which was the average predicted price from an actual price of $122, this indication is high and might also mean the model doesn’t perform as expected. The calculated R-squared is 0.37 which is 37% variance of the actual data, the value is considerably low. The calculated MAE is 64.46which is approximately $64 model prediction of the price value.
+
+Of the three models the linear regression had the best performance with RMSE of 101.1529 an R-squared of 48% and MAE of $64.60
+
+
+```{r 39, echo=TRUE, warning=FALSE}
+library(e1071)
+
+# Fit the SVM model
+model_svm <- svm(price_cleaned12 ~ host_acceptance_rate + longitude + bathrooms_text + availability_60 + first_review + review_scores_rating + instant_bookable + host_location + host_total_listings_count + room_type + bedrooms  + availability_365 + review_scores_cleanliness + review_scores_location + reviews_per_month + host_listings_count + last_review + latitude + beds + accommodates + minimum_nights + number_of_reviews + review_scores_checkin + review_scores_value + neighbour,
+                 data = train_data, kernel = "linear")
+
+# Print the SVM model
+print(model_svm)
+
+# Make predictions on the testing data
+predictions_svm <- predict(model_svm, newdata = test_data)
+
+# Calculate RMSE, R-squared, and MAE for the SVM model
+RMSE <- RMSE(predictions_svm, test_data$price_cleaned)
+R_squared <- cor(predictions_svm, test_data$price_cleaned) ^ 2
+MAE <- MAE(predictions_svm, test_data$price_cleaned)
+
+# Print the results
+cat("RMSE:", RMSE, "\n")
+cat("R-squared:", R_squared, "\n")
+cat("MAE:", MAE, "\n")
+
+```
+
+## Subset B  {.allowframebreaks}
+
+Subset B was created using the three cities as stated above. The three cities were combined because of the size of Antwerp which was 334 and Berlin which was 67. It would be difficult to draw a realistic conclusion using a data set with a size of 401, hence, Amsterdam was included to have a more wholistic analysis. The data was cleaned, and outliers removed from price, minimum nights and maximum nights. The data contained N/A, NAs which were cleaned from the data by converting N/As to NA and removing the rows containing these values from the data set. Two additional columns for price were dropped because of multicollinearity, bathrooms, calendar updated, neighbourhood cleansed, city, price, X, id and host columns were dropped. These columns were identified as columns that are likely to affect the performance of the model hence the reason for dropping them.
+
+```{r 40, echo = FALSE}
+Top_freq_spec_b<-c('Amsterdam-7Sep2022-listings (1).csv', 'Berlin_15_Sep_2022_listings (1).csv', 'Antwerp_22_Sep2022_listings (1).csv')
+airbnb_data_B <- airbnb1[airbnb1$crrr %in% Top_freq_spec_b,]
+```
+
+```{r 41, echo = FALSE} 
+airbnb_data_B$neighbour<-as.factor(airbnb_data_B$host_neighbourhood)
+#airbnb_data_B_summary <- sapply(airbnb_data_B, summary)
+#airbnb_data_B_summary
+#summary(airbnb_data_B$neighbour)
+```
+
+```{r 42, echo = FALSE} 
+airbnb_data_B$price_cleaned <- substring(airbnb_data_B$price, 2)
+airbnb_data_B$price_cleaned11<-sub("\\S+\\s+", "", airbnb_data_B$price)
+library(tidyr)
+airbnb_data_B$price_cleaned12<-extract_numeric(airbnb_data_B$price)
+summary(as.numeric(airbnb_data_B$price_cleaned12))
+```
+
+```{r 43, echo = FALSE}
+plot(airbnb_data_B$price_cleaned12,airbnb_data_B$review_scores_rating)
+```
+
+```{r 44, echo = FALSE}
+price_outliers<- airbnb_data_B$price_cleaned12>1000
+plot(airbnb_data_B$review_scores_rating[!price_outliers],airbnb_data_B$price_cleaned12[!price_outliers])
+```
+
+```{r 45, echo = TRUE}
+plot(airbnb_data_B$availability_30[!price_outliers],airbnb_data_B$price_cleaned12[!price_outliers])
+```
+
+```{r 46, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+minimum_nights_outliers<- airbnb_data_B$minimum_nights>10
+plot(airbnb_data_B$minimum_nights[!minimum_nights_outliers],airbnb_data_B$price_cleaned12[!minimum_nights_outliers])
+```
+
+```{r 47, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+plot(airbnb_data_B$number_of_reviews[!minimum_nights_outliers],airbnb_data_B$price_cleaned12[!minimum_nights_outliers])
+```
+
+```{r 48, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+plot(airbnb_data_B$number_of_reviews[!minimum_nights_outliers],airbnb_data_B$minimum_nights[!minimum_nights_outliers])
+```
+
+
+```{r 49, echo=FALSE}
+airbnb_data_B[airbnb_data_B == "N/A"] <- NA
+```
+
+```{r 50, echo=FALSE}
+airbnb_data_B <- airbnb_data_B[complete.cases(airbnb_data_B[, c("bedrooms", "beds", "review_scores_accuracy", "review_scores_checkin", "review_scores_cleanliness", "review_scores_communication", "review_scores_location", "review_scores_value", "review_scores_rating", "reviews_per_month", "host_location", "bathrooms_text", "first_review", "last_review", "license", "host_response_time", "host_response_rate", "host_acceptance_rate", "neighbourhood", "host_neighbourhood")]), ]
+```
+
+```{r 51, echo=FALSE}
+airbnb_data_B <- airbnb_data_B %>%
+  mutate_if(is.character, as.factor)
+```
+
+```{r 52, echo=FALSE}
+airbnb_data_B <- airbnb_data_B %>% 
+  mutate_if(~ !is.numeric(.), as.numeric)
+```
+
+Removing outliers from price
+```{r 211, echo=FALSE}
+airbnb_data_B <- airbnb_data_B %>% 
+  filter(price_cleaned12 <3000)
+```
+
+```{r 212, echo=FALSE}
+airbnb_data_B <- airbnb_data_B %>%
+  filter(minimum_nights <1000)
+```
+
+```{r 213, echo=FALSE}
+airbnb_data_B <- airbnb_data_B %>%
+  filter(maximum_nights <1125)
+```
+
+```{r 55, echo=FALSE}
+airbnb_data_B <- subset(airbnb_data_B, select = -bathrooms)
+airbnb_data_B <- subset(airbnb_data_B, select = -calendar_updated)
+airbnb_data_B <- subset(airbnb_data_B, select = -neighbourhood_group_cleansed)
+airbnb_data_B <- subset(airbnb_data_B, select = -city)
+airbnb_data_B <- subset(airbnb_data_B, select = -price_cleaned11)
+airbnb_data_B <- subset(airbnb_data_B, select = -price_cleaned)
+airbnb_data_B <- subset(airbnb_data_B, select = -price)
+airbnb_data_B <- subset(airbnb_data_B, select = -id)
+airbnb_data_B <- subset(airbnb_data_B, select = -host_id)
+airbnb_data_B <- subset(airbnb_data_B, select = -X)
+```
+
+```{r 56, echo=FALSE}
+summary(airbnb_data_B)
+```
+
+
+```{r 57, echo=FALSE}
+set.seed(40379140) # set seed for reproducibility
+train_index_B <- createDataPartition(y = airbnb_data_B$price_cleaned, p = 0.8, list = FALSE)
+train_data_B <- airbnb_data_B[train_index_B, ]
+test_data_B <- airbnb_data_B[-train_index_B, ]
+```
+
+## Support Vector model  {.allowframebreaks}
+
+After cleaning the data, it was discovered that only two cities Amsterdam and Antwerp remained as Berlin was affected by the cleaning because the size was 67. The SVM model was performed on the data set and Root mean squared, R-squared and Mean absolute error were calculated. The RMSE was 108.8325 which was the average predicted price from an actual price of $108, this indication is high and might also mean the model doesn’t perform as expected. The calculated R-squared is 0.54.988 which is 55% variance of the actual data, the value is considerably low. The calculated MAE is 59.37which is approximately $59 model prediction of the price value.
+
+The SVM model performed much better on subset B compared to the result from the model on subset A.
+
+
+```{r 58, echo=TRUE, warning=FALSE}
+library(e1071)
+
+# Fit the SVM model
+model_svm_B <- svm(price_cleaned12 ~ host_acceptance_rate + longitude + bathrooms_text + availability_60 + first_review + review_scores_rating + instant_bookable + host_location + host_total_listings_count + room_type + bedrooms  + availability_365 + review_scores_cleanliness + review_scores_location + reviews_per_month + host_listings_count + last_review + latitude + beds + accommodates + minimum_nights + number_of_reviews + review_scores_checkin + review_scores_value + neighbour,
+                 data = train_data_B, kernel = "linear")
+
+# Print the SVM model
+print(model_svm_B)
+
+# Make predictions on the testing data
+predictions_svm_B <- predict(model_svm_B, newdata = test_data_B)
+
+# Calculate RMSE, R-squared, and MAE for the SVM model
+RMSE_B <- RMSE(predictions_svm_B, test_data_B$price_cleaned)
+R_squared_B <- cor(predictions_svm_B, test_data_B$price_cleaned) ^ 2
+MAE_B <- MAE(predictions_svm_B, test_data_B$price_cleaned)
+
+# Print the results
+cat("RMSE_B:", RMSE_B, "\n")
+cat("R-squared_B:", R_squared_B, "\n")
+cat("MAE_B:", MAE_B, "\n")
+
+```
+
+Appendix:
+
+r 11, echo=FALSE}
+airbnb<-read.csv("dataset-cities- Amsterdam- - Antwerp_22 - Berlin_15_ - student 9 .csv")
+airbnb1<-as.data.frame(airbnb)
+
+
+{r 13, echo = TRUE} 
+airbnb1$crrr<-as.factor(airbnb1$city)
+Freq_table<-tab1(airbnb1$crrr, sort.group = "decreasing", cum.percent = TRUE)
+Freq_df<-as.data.frame(Freq_table$output.table)
+#View(Freq_df)
+summary(airbnb1$crrr)
+
+
+{r 14, echo=TRUE}
+library(ggplot2)
+GBarplot<-ggplot(airbnb1, aes(x=reorder(crrr, crrr, function(x)-length(x)))) +
+geom_bar(fill='purple') +  labs(x='City')
+GBarplot + theme(text = element_text(size = 6)) 
+
+
+- Subset A:
+{r 15, echo = TRUE}
+Top_freq_spec_a<-c('Amsterdam-7Sep2022-listings (1).csv')
+airbnb_data <- airbnb1[airbnb1$crrr %in% Top_freq_spec_a,]
+
+## Frequnecy and dataframes (pandas)  {.allowframebreaks}
+
+-Summary of Subset A:
+
+{r 16, echo = TRUE} 
+airbnb_data$neighbour<-as.factor(airbnb_data$host_neighbourhood)
+#airbnb_data_summary <- sapply(airbnb_data, summary)
+#airbnb_data_summary
+#summary(airbnb_data$neighbour)
+
+
+{r 17, echo = FALSE} 
+airbnb_data$price_cleaned <- substring(airbnb_data$price, 2)
+airbnb_data$price_cleaned11<-sub("\\S+\\s+", "", airbnb_data$price)
+library(tidyr)
+airbnb_data$price_cleaned12<-extract_numeric(airbnb_data$price)
+summary(as.numeric(airbnb_data$price_cleaned12))
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of price and review_scores_rating
+
+{r 18, echo = TRUE}
+plot(airbnb_data$price_cleaned12,airbnb_data$review_scores_rating)
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+
+- Association of price and review_scores_rating...
+
+
+{r 19, echo = TRUE}
+price_outliers<- airbnb_data$price_cleaned12>1000
+plot(airbnb_data$review_scores_rating[!price_outliers],airbnb_data$price_cleaned12[!price_outliers])
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of price and availability in past 30 days..
+
+
+{r 20, echo = TRUE}
+plot(airbnb_data$availability_30[!price_outliers],airbnb_data$price_cleaned12[!price_outliers])
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of price and minimum_nights...
+
+
+{r 21, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+minimum_nights_outliers<- airbnb_data$minimum_nights>10
+plot(airbnb_data$minimum_nights[!minimum_nights_outliers],airbnb_data$price_cleaned12[!minimum_nights_outliers])
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+
+- Association of number_of_reviews and price...
+
+
+{r 22, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+plot(airbnb_data$number_of_reviews[!minimum_nights_outliers],airbnb_data$price_cleaned12[!minimum_nights_outliers])
+
+
+## Association of predictors and price  {.allowframebreaks}
+
+- Association of number_of_reviews and minimum_nights...
+
+
+{r 23, echo = TRUE, fig.show="hold", out.width="50%"}
+#par(mfrow = c(1,2))
+plot(airbnb_data$number_of_reviews[!minimum_nights_outliers],airbnb_data$minimum_nights[!minimum_nights_outliers])
+
+ggplot(data=airbnb_data)+
+geom_bar(mapping = aes(x=as.numeric(has_availability), y=price_cleaned12), stat="summary")+ labs(title = "Price by Availability", x="Availability", y="price($)")
+
+qplot(x= host_acceptance_rate, y= price_cleaned12, data = airbnb_data)+ geom_smooth(method = "lm", se=FALSE)+ ggtitle("Relationship between Price and Acceptance Rate")
+
+
+References: 
+
+Gao, H., Tang, L., & Liu, H. (2017). Deep price prediction with embedding and multi-task learning. In Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (pp. 305-314). 
+Grewal, S., Srivastava, S., Kumar, A., & Singh, S. K. (2020). Airbnb price prediction using machine learning. Journal of Computational and Theoretical Nanoscience, 17(11), 5793-5797. 
+Kok, S. K., Muurling, M., & Scholten, V. (2021). Airbnb price prediction: A comparative analysis of machine learning models. Journal of Travel Research, 60(1), 58-73.
+ Neville, J., Arief, B., & Chen, X. (2020). Interpretable Airbnb pricing predictions. In Proceedings of the 29th ACM International Conference on Information & Knowledge Management (pp. 3213-3220). 
